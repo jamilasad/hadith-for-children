@@ -27,6 +27,13 @@
   document.addEventListener("DOMContentLoaded", paintVoice);
 
   /* ---------- audio ---------- */
+  function label(el, which) {
+    if (el && el.dataset && el.dataset[which]) el.textContent = el.dataset[which];
+  }
+  function resetLabels() {
+    document.querySelectorAll("[data-listen]").forEach(function (b) { b.textContent = b.dataset.listen; b.classList.remove("paused"); });
+    document.querySelectorAll("[data-playall].on").forEach(function (b) { b.classList.remove("on"); if (b.dataset.label) b.textContent = b.dataset.label; });
+  }
   var audio = null, cur = null, queue = null, synth = window.speechSynthesis, base = document.documentElement.dataset.audioBase || "audio/";   /* the audio lives above the site folder */
   function clearState() {
     document.querySelectorAll(".playing,.buffering").forEach(function (e) { e.classList.remove("playing", "buffering"); });
@@ -35,7 +42,7 @@
     queue = null;
     if (audio) { audio.onended = audio.onerror = audio.onplaying = audio.onloadedmetadata = null; audio.pause(); }
     if (synth) synth.cancel();
-    document.querySelectorAll("[data-playall].on").forEach(function (b) { b.classList.remove("on"); if (b.dataset.label) b.textContent = b.dataset.label; });
+    resetLabels();
     clearState(); cur = null;
   }
   window.stopAudio = stop;
@@ -61,15 +68,21 @@
     var finish = function () {
       if (over) return; over = true;
       clearTimeout(t); clearTimeout(guard);
-      if (cur === el) { el.classList.remove("playing", "buffering"); cur = null; }
+      if (cur === el) { el.classList.remove("playing", "buffering", "paused"); label(el, "listen"); cur = null; }
       then && then();
     };
     audio.onloadedmetadata = function () {
       var d = audio.duration / (audio.playbackRate || 1);
       if (isFinite(d) && d > 0) { clearTimeout(guard); guard = setTimeout(finish, d * 1000 + 700); }
     };
-    audio.onplaying = function () { clearTimeout(t); el.classList.remove("buffering"); };
+    audio.onplaying = function () { clearTimeout(t); el.classList.remove("buffering"); label(el, "pause"); };
     audio.onended = finish;
+    el._rearm = function () {                       /* after a resume, re-arm the safety timer */
+      clearTimeout(guard);
+      var left = (audio.duration - audio.currentTime) / (audio.playbackRate || 1);
+      guard = setTimeout(finish, (isFinite(left) && left > 0 ? left * 1000 : 8000) + 700);
+    };
+    el._hold = function () { clearTimeout(guard); clearTimeout(t); };
     audio.onerror = function () { clearTimeout(t); el.classList.remove("buffering"); speak(text, finish); };
     audio.src = base + voice + "/" + key + ".mp3";
     var p = audio.play(); if (p && p.catch) p.catch(function () { audio.onerror(); });
@@ -100,10 +113,15 @@
       var items = [].slice.call(document.querySelectorAll(seq.dataset.playall));
       playAll(items, 0); return;
     }
+    if (e.target.closest("[data-stopbtn]")) { e.preventDefault(); stop(); return; }
     var el = e.target.closest("[data-audio]");
     if (!el) return;
     e.preventDefault();
-    if (el.classList.contains("playing")) { stop(); return; }
+    if (el === cur && audio) {                       /* tapping what is already playing pauses it */
+      if (!audio.paused) { audio.pause(); el.classList.add("paused"); el._hold && el._hold(); label(el, "resume"); }
+      else { audio.play(); el.classList.remove("paused"); el._rearm && el._rearm(); label(el, "pause"); }
+      return;
+    }
     stop(); play(el);
   });
   addEventListener("keydown", function (e) { if (e.key === "Escape") stop(); });
