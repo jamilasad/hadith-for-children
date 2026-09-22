@@ -27,7 +27,7 @@
   document.addEventListener("DOMContentLoaded", paintVoice);
 
   /* ---------- audio ---------- */
-  var audio = null, cur = null, queue = null, synth = window.speechSynthesis, base = document.documentElement.dataset.root || "";
+  var audio = null, cur = null, queue = null, synth = window.speechSynthesis, base = document.documentElement.dataset.audioBase || "audio/";   /* the audio lives above the site folder */
   function clearState() {
     document.querySelectorAll(".playing,.buffering").forEach(function (e) { e.classList.remove("playing", "buffering"); });
   }
@@ -59,7 +59,7 @@
     audio.onplaying = function () { clearTimeout(t); el.classList.remove("buffering"); };
     audio.onended = finish;
     audio.onerror = function () { clearTimeout(t); el.classList.remove("buffering"); speak(text, finish); };
-    audio.src = base + "audio/" + voice + "/" + key + ".mp3";
+    audio.src = base + voice + "/" + key + ".mp3";
     var p = audio.play(); if (p && p.catch) p.catch(function () { audio.onerror(); });
   }
   function playAll(items, i) {
