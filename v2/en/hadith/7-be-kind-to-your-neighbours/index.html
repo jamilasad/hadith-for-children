@@ -13,8 +13,9 @@
 <header class="top"><div class="in">
   <a class="brand" href="../../../en/">24 Hadith</a>
   <a class="chip" href="../../../bn/hadith/7-be-kind-to-your-neighbours/" title="বাংলা">বাংলা</a>
-  <button class="chip" data-voice="m" onclick="setVoice('m')">🔊<span class="sr">male</span></button>
-  <button class="chip" data-voice="f" onclick="setVoice('f')">🔈<span class="sr">female</span></button>
+  <span class="vlabel" aria-hidden="true">🔊</span>
+  <button class="vchip" data-voice="m" onclick="setVoice('m')" title="Male voice" aria-label="Male voice"><img src="../../../img/cast-abbu-120.webp" alt="" width="30" height="30"></button>
+  <button class="vchip" data-voice="f" onclick="setVoice('f')" title="Female voice" aria-label="Female voice"><img src="../../../img/cast-ammu-120.webp" alt="" width="30" height="30"></button>
 </div></header>
 <main>
 <div class="hhead"><div class="in"><a class="back" href="../">‹ All hadith</a>
@@ -27,7 +28,7 @@
     <div class="playrow">
       <button class="btn teal" data-audio="hadith-07" data-text="عَنْ أَبِي هُرَيْرَةَ، أَنَّ رَسُولَ اللَّهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ قَالَ: لَا يَدْخُلُ الْجَنَّةَ مَنْ لَا يَأْمَنُ جَارُهُ بَوَائِقَهُ">▶ Listen</button>
       <button class="btn ghost" onclick="setRate(this)">1×</button>
-      <button class="btn ghost" data-playall=".plaque .ar .aw">🔁 Word by word</button>
+      <button class="btn ghost" data-playall=".plaque .ar .aw" data-stop="■ Stop">🔁 Word by word</button>
     </div>
     <div class="tl"><b>Say it with me:</b> Lā yadkhulu l-jannata man lā ya'manu jāruhu bawā'iqah.</div>
   </div>

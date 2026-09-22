@@ -33,8 +33,9 @@
   }
   function stop() {
     queue = null;
-    if (audio) { audio.onended = audio.onerror = audio.onplaying = null; audio.pause(); }
+    if (audio) { audio.onended = audio.onerror = audio.onplaying = audio.onloadedmetadata = null; audio.pause(); }
     if (synth) synth.cancel();
+    document.querySelectorAll("[data-playall].on").forEach(function (b) { b.classList.remove("on"); if (b.dataset.label) b.textContent = b.dataset.label; });
     clearState(); cur = null;
   }
   window.stopAudio = stop;
@@ -48,31 +49,54 @@
   function play(el, then) {
     if (!el) { then && then(); return; }
     var key = el.dataset.audio, text = el.dataset.text || el.textContent;
-    if (audio) { audio.onended = audio.onerror = audio.onplaying = null; audio.pause(); }
+    if (audio) { audio.onended = audio.onerror = audio.onplaying = audio.onloadedmetadata = null; audio.pause(); }
     if (synth) synth.cancel();
     clearState();
     cur = el; el.classList.add("playing", "buffering");
     if (!audio) audio = new Audio();
     audio.playbackRate = parseFloat(document.body.dataset.rate || "1");
     var t = setTimeout(function () { el.classList.remove("buffering"); }, 4000);
-    var finish = function () { clearTimeout(t); if (cur === el) { el.classList.remove("playing", "buffering"); cur = null; } then && then(); };
+    var guard = setTimeout(function () { finish(); }, 8000);   /* if "ended" never arrives, move on anyway */
+    var over = false;
+    var finish = function () {
+      if (over) return; over = true;
+      clearTimeout(t); clearTimeout(guard);
+      if (cur === el) { el.classList.remove("playing", "buffering"); cur = null; }
+      then && then();
+    };
+    audio.onloadedmetadata = function () {
+      var d = audio.duration / (audio.playbackRate || 1);
+      if (isFinite(d) && d > 0) { clearTimeout(guard); guard = setTimeout(finish, d * 1000 + 700); }
+    };
     audio.onplaying = function () { clearTimeout(t); el.classList.remove("buffering"); };
     audio.onended = finish;
     audio.onerror = function () { clearTimeout(t); el.classList.remove("buffering"); speak(text, finish); };
     audio.src = base + voice + "/" + key + ".mp3";
     var p = audio.play(); if (p && p.catch) p.catch(function () { audio.onerror(); });
   }
+  var pre = null;
+  function preload(el) {
+    if (!el) return;
+    try { pre = new Audio(); pre.preload = "auto"; pre.src = base + voice + "/" + el.dataset.audio + ".mp3"; } catch (e) {}
+  }
   function playAll(items, i) {
     queue = items; i = i || 0;
-    if (!items[i]) { queue = null; return; }
-    play(items[i], function () { if (queue === items) setTimeout(function () { playAll(items, i + 1); }, 350); });
+    if (!items[i]) {
+      queue = null;
+      document.querySelectorAll("[data-playall].on").forEach(function (b) { b.classList.remove("on"); if (b.dataset.label) b.textContent = b.dataset.label; });
+      return;
+    }
+    preload(items[i + 1]);
+    play(items[i], function () { if (queue === items) setTimeout(function () { playAll(items, i + 1); }, 320); });
   }
   document.addEventListener("click", function (e) {
     var seq = e.target.closest("[data-playall]");
     if (seq) {
       e.preventDefault();
-      if (seq.classList.contains("on")) { seq.classList.remove("on"); stop(); return; }
-      stop(); seq.classList.add("on");
+      if (seq.classList.contains("on")) { stop(); return; }
+      stop();
+      seq.dataset.label = seq.textContent;
+      seq.classList.add("on"); seq.textContent = seq.dataset.stop || "■";
       var items = [].slice.call(document.querySelectorAll(seq.dataset.playall));
       playAll(items, 0); return;
     }
