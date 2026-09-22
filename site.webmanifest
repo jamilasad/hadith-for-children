@@ -1,0 +1,20 @@
+{
+ "name": "My First 24 Hadith",
+ "short_name": "24 Hadith",
+ "start_url": ".",
+ "display": "standalone",
+ "background_color": "#fbf3e3",
+ "theme_color": "#fbf3e3",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  }
+ ]
+}
