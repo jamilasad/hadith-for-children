@@ -447,9 +447,10 @@ html[data-lang="en"] .book[data-lang="bn"],html[data-lang="bn"] .book[data-lang=
   function stop(){running=false;halt();offAll()}
   function speak(text,done){if(!synth){done();return}var u=new SpeechSynthesisUtterance(text);u.lang="ar-SA";u.rate=.85;var vs=synth.getVoices().filter(function(v){return /^ar/i.test(v.lang)});if(vs.length)u.voice=vs[0];u.onend=done;u.onerror=done;synth.speak(u)}
   function play(el,done){halt();if(!a)a=new Audio();curEl=el;el.classList.add("playing");el.classList.add("buffering");
-    var fin=function(){if(curEl===el){el.classList.remove("playing");el.classList.remove("buffering");curEl=null}done&&done()};
-    a.onplaying=function(){el.classList.remove("buffering")};
-    a.onended=fin;a.onerror=function(){el.classList.remove("buffering");speak(el.dataset.text||el.textContent,fin)};
+    var fin=function(){clearTimeout(bt);if(curEl===el){el.classList.remove("playing");el.classList.remove("buffering");curEl=null}done&&done()};
+    var bt=setTimeout(function(){el.classList.remove("buffering")},4000);   /* never pulse forever */
+    a.onplaying=function(){clearTimeout(bt);el.classList.remove("buffering")};
+    a.onended=fin;a.onerror=function(){clearTimeout(bt);el.classList.remove("buffering");speak(el.dataset.text||el.textContent,fin)};
     a.src="audio/"+voice+"/"+el.dataset.audio+".mp3";var p=a.play();if(p&&p.catch)p.catch(function(){a.onerror()})}
   document.addEventListener("click",function(e){
     var b=e.target.closest(".playall");
