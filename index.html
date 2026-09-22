@@ -203,9 +203,22 @@ h1,h2,h3{font-family:var(--head);margin:0;font-weight:600}
 .guide>.foot{position:absolute}
 /* only the pages near the viewport are rendered (huge cut in main-thread work) */
 body.site .page{content-visibility:auto;contain-intrinsic-size:auto 794px}
+@media screen and (max-width:899px){body.site .page{contain-intrinsic-size:auto 1250px}}
+@media screen and (max-width:520px){body.site .page{contain-intrinsic-size:auto 1450px}}
 body.site{--muted:#7c6146}   /* print keeps the soft grey; the screen needs 4.5:1 contrast */
 /* phones get a smaller background file; --bg-lg kicks in on bigger screens */
 @media screen and (min-width:900px){ .page.themed:after,.page.coverfull,.page.backcover{background-image:var(--bg-lg,var(--bg))} }
+/* loading feedback */
+@keyframes creep{0%{width:10%}50%{width:62%}100%{width:88%}}
+#loadbar{position:fixed;top:0;left:0;height:3px;width:10%;background:var(--accent);z-index:60;box-shadow:0 0 6px rgba(201,106,59,.5);animation:creep 6s ease-out forwards}
+#loadbar.done{width:100%;animation:none;opacity:0;transition:width .25s ease,opacity .5s ease .2s}
+@keyframes shimmer{0%{background-position:150% 0}100%{background-position:-150% 0}}
+/* the picture slots shimmer until the picture is actually there (they are opaque, so it disappears by itself) */
+body.site .art img,body.site .ccell img,body.site .prow img,body.site .cover-art img{background-image:linear-gradient(100deg,#eee1c9 30%,#f9f2e4 48%,#eee1c9 66%);background-size:280% 100%;animation:shimmer 1.3s linear infinite}
+body.site img.is-loaded{background-image:none;animation:none}
+@keyframes buffering{50%{opacity:.45}}
+body.site .buffering{animation:buffering .9s ease-in-out infinite}
+body.site .buffering .play,body.site .play.buffering{background:var(--gold);color:var(--ink)}
 /* website audio (index.html only; print masters never get body.site) */
 .site-only{display:none}
 body.site .site-only{display:inline-flex}
@@ -218,12 +231,13 @@ body.site .card.playing:after{opacity:1}
 @keyframes glow{0%{box-shadow:0 0 0 0 rgba(224,166,58,.85),1px 1px 0 var(--line)}70%{box-shadow:0 0 0 7px rgba(224,166,58,0),1px 1px 0 var(--line)}100%{box-shadow:0 0 0 0 rgba(224,166,58,0),1px 1px 0 var(--line)}}
 .play{align-items:center;justify-content:center;width:11mm;height:11mm;border-radius:50%;border:2.5px solid var(--line);background:var(--teal);color:#fff;font-size:15px;cursor:pointer;padding:0 0 0 2px;direction:ltr;animation:glow 2s ease-out infinite;z-index:3}
 .play:hover{background:var(--gold);color:var(--ink)}
+.plaque-play{box-shadow:1px 1px 0 var(--line),0 0 0 4px rgba(224,166,58,.25)}
 .playing>.play,.play.playing{background:var(--accent);animation:none;box-shadow:0 0 0 4px rgba(201,106,59,.35),1px 1px 0 var(--line)}
-body.site .plaque-play{position:absolute;left:-4mm;top:-4mm}
-body.site .matn-play{position:absolute;left:0;top:50%;transform:translateY(-50%)}
-body.site .matn-again{padding-left:13mm}
+body.site .plaque-play{position:static;display:flex;margin:2.5mm auto 0}   /* in the flow, under the Arabic — never over the text */
+body.site .matn-play{position:static;display:flex;margin:2mm auto 0}
 body.site .plaque{overflow:visible}
-.playall{align-items:center;gap:1.5mm;border:2.5px solid var(--line);background:var(--teal);color:#fff;border-radius:999px;padding:1.4mm 4mm;font:800 11.5px var(--body);cursor:pointer;margin-left:4mm;vertical-align:middle;animation:glow 2s ease-out infinite}
+body.site .order h2{display:flex;align-items:center;gap:3mm;flex-wrap:wrap;line-height:1.35}
+.playall{align-items:center;gap:1.5mm;border:2.5px solid var(--line);background:var(--teal);color:#fff;border-radius:999px;padding:1.4mm 4mm;font:800 11.5px var(--body);cursor:pointer;vertical-align:middle;animation:glow 2s ease-out infinite}
 .playall:hover{background:var(--gold);color:var(--ink)}
 .playall.on{background:var(--accent);animation:none}
 /* website language switcher */
@@ -263,7 +277,7 @@ html[data-lang="en"] .book[data-lang="bn"],html[data-lang="bn"] .book[data-lang=
   .art,.story .art,.long .art,.t2 .art,.t3 .art{width:100%;margin:0 0 12px}
   .art img{width:100%;height:auto}
   .tr{font-size:15px;padding:8px 12px}
-  .plaque{padding:34px 14px 12px}
+  .plaque{padding:16px 14px 12px}
   .ar{font-size:23px;line-height:1.95}
   .tl{font-size:12.5px}
   .seal{width:min(44mm,100%);height:auto;aspect-ratio:44/9.6}
@@ -285,7 +299,7 @@ html[data-lang="en"] .book[data-lang="bn"],html[data-lang="bn"] .book[data-lang=
   .chip .ar,.c3 .chip .ar,.many .chip .ar{font-size:16px;line-height:1.6}
   .chip .en,.c3 .chip .en,.many .chip .en{font-size:10px}
   .matn-again,.many .matn-again,.xmany .matn-again{font-size:18px;line-height:1.8;padding-left:0!important}
-  .matn-play{position:static!important;transform:none!important;display:flex!important;margin:10px auto 0}
+  .matn-play{margin:10px auto 0}
   .order h2{display:flex;flex-wrap:wrap;align-items:center;gap:8px;line-height:1.3}
   .trace{min-height:0;margin-top:10px;--band:17mm}
   .tw,.many .tw,.xmany .tw{font-size:26px}
@@ -356,7 +370,7 @@ html[data-lang="en"] .book[data-lang="bn"],html[data-lang="bn"] .book[data-lang=
   .pno{position:static;display:block;width:max-content;margin:8px auto 0;font-size:12px}
   .play{width:38px;height:38px;font-size:15px}
   .plaque{overflow:visible}
-  body.site .plaque-play{left:10px;top:8px}
+  body.site .plaque-play{margin:10px auto 2px}
   .playall{padding:6px 12px;font-size:11.5px;margin:6px 0 0}
   .vhead h2,.wr h2{font-size:15px}
   /* no text under 12px on a phone */
@@ -403,6 +417,18 @@ html[data-lang="en"] .book[data-lang="bn"],html[data-lang="bn"] .book[data-lang=
   addEventListener("click",function(e){var a=e.target.closest("a.golang");if(!a)return;var id=nearest();if(id)a.href=a.getAttribute("href").split("#")[0]+"#"+id},true);
 })();
 </script><script>
+(function(){
+  /* thin progress bar while the page is coming in */
+  function done(){var b=document.getElementById("loadbar");if(b)b.classList.add("done")}
+  addEventListener("load",done);setTimeout(done,9000);
+  /* each picture shimmers until it has actually arrived */
+  addEventListener("load",function(e){var t=e.target;if(t&&t.tagName==="IMG")t.classList.add("is-loaded")},true);
+  function sweep(){document.querySelectorAll("img:not(.is-loaded)").forEach(function(i){
+    if(i.complete&&i.naturalWidth)i.classList.add("is-loaded");
+    else i.addEventListener("load",function(){i.classList.add("is-loaded")},{once:true})})}
+  document.addEventListener("DOMContentLoaded",sweep);addEventListener("load",sweep);
+})();
+</script><script>
 (function(){var PAGE=1123+18;   /* A4 landscape at 96dpi + page shadow */
  function fit(){var w=document.documentElement.clientWidth;
    document.documentElement.style.setProperty("--fit", w>=900 ? Math.min(1,(w-28)/PAGE).toFixed(4) : "1")}
@@ -415,11 +441,16 @@ html[data-lang="en"] .book[data-lang="bn"],html[data-lang="bn"] .book[data-lang=
   window.setVoice=function(v){voice=v;try{localStorage.setItem("hadith-voice",v)}catch(e){}showVoice();stop()};
   document.addEventListener("DOMContentLoaded",showVoice);showVoice();
   function offAll(){document.querySelectorAll(".playall.on").forEach(function(b){b.classList.remove("on")})}
-  function halt(){if(a){a.onended=null;a.onerror=null;a.pause()}if(synth)synth.cancel();if(curEl){curEl.classList.remove("playing");curEl=null}}
+  function halt(){if(a){a.onended=null;a.onerror=null;a.onplaying=null;a.pause()}if(synth)synth.cancel();
+    document.querySelectorAll(".buffering").forEach(function(e){e.classList.remove("buffering")});
+    if(curEl){curEl.classList.remove("playing");curEl=null}}
   function stop(){running=false;halt();offAll()}
   function speak(text,done){if(!synth){done();return}var u=new SpeechSynthesisUtterance(text);u.lang="ar-SA";u.rate=.85;var vs=synth.getVoices().filter(function(v){return /^ar/i.test(v.lang)});if(vs.length)u.voice=vs[0];u.onend=done;u.onerror=done;synth.speak(u)}
-  function play(el,done){halt();if(!a)a=new Audio();curEl=el;el.classList.add("playing");var fin=function(){if(curEl===el){el.classList.remove("playing");curEl=null}done&&done()};
-    a.onended=fin;a.onerror=function(){speak(el.dataset.text||el.textContent,fin)};a.src="audio/"+voice+"/"+el.dataset.audio+".mp3";var p=a.play();if(p&&p.catch)p.catch(function(){a.onerror()})}
+  function play(el,done){halt();if(!a)a=new Audio();curEl=el;el.classList.add("playing");el.classList.add("buffering");
+    var fin=function(){if(curEl===el){el.classList.remove("playing");el.classList.remove("buffering");curEl=null}done&&done()};
+    a.onplaying=function(){el.classList.remove("buffering")};
+    a.onended=fin;a.onerror=function(){el.classList.remove("buffering");speak(el.dataset.text||el.textContent,fin)};
+    a.src="audio/"+voice+"/"+el.dataset.audio+".mp3";var p=a.play();if(p&&p.catch)p.catch(function(){a.onerror()})}
   document.addEventListener("click",function(e){
     var b=e.target.closest(".playall");
     if(b){e.preventDefault();e.stopPropagation();if(b.classList.contains("on")){stop();return}stop();b.classList.add("on");running=true;
@@ -430,7 +461,7 @@ html[data-lang="en"] .book[data-lang="bn"],html[data-lang="bn"] .book[data-lang=
     e.preventDefault();if(el.classList.contains("playing")){stop();return}stop();play(el)});
   document.addEventListener("keydown",function(e){if(e.key==="Escape")stop()});
 })();
-</script></head><body class="site"><div class="bar"><div class="switch"><button data-l="en" class="on">English</button><a class="golang" data-l="bn" href="bn.html">বাংলা</a></div><div class="switch voice"><button data-v="m" onclick="setVoice('m')">🔊 Male voice</button><button data-v="f" onclick="setVoice('f')">🔊 Female voice</button></div></div><div class="book" data-lang="en">
+</script></head><body class="site"><div id="loadbar"></div><div class="bar"><div class="switch"><button data-l="en" class="on">English</button><a class="golang" data-l="bn" href="bn.html">বাংলা</a></div><div class="switch voice"><button data-v="m" onclick="setVoice('m')">🔊 Male voice</button><button data-v="f" onclick="setVoice('f')">🔊 Female voice</button></div></div><div class="book" data-lang="en">
 <section id="p1" class="page coverfull" style="--bg:url('images/opt/cover-front-800.webp');--bg-lg:url('images/opt/cover-front-1600.webp')">
   <div class="cf-text">
     <div class="bism" dir="rtl" lang="ar">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
